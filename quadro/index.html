@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Energia cá de casa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Um só mundo visual, pensado para uma TV numa sala à noite: carvão quente, e cada fonte de energia com a sua cor. */
+:root{
+  --chao:#12100d; --chao2:#1a1713; --chao3:#221e19; --linha:#2e2922;
+  --tinta:#f3ede3; --tinta2:#b6ad9f; --tinta3:#7d7569;
+  --sol:#f4b33d; --bat:#3cc4a5; --rede:#9a8cff; --carro:#ff7a59; --casa:#f3ede3;
+  --bom:#5fcf73; --mau:#ff6b6b;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --corpo:"Figtree", "Helvetica Neue", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--chao);color:var(--tinta);overflow:hidden;font-family:var(--corpo)}
+#palco{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;display:grid;grid-template-rows:132px 1fr 92px;
+  background:radial-gradient(1200px 700px at 88% -10%, rgba(244,179,61,.10), transparent 60%), radial-gradient(900px 600px at -5% 110%, rgba(154,140,255,.08), transparent 60%), var(--chao)}
+.num{font-variant-numeric:tabular-nums}
+
+/* topo */
+header{display:flex;align-items:flex-end;justify-content:space-between;padding:0 72px 18px;border-bottom:1px solid var(--linha)}
+.marca{display:flex;flex-direction:column;gap:6px}
+.marca small{font:600 18px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--tinta3)}
+.marca h1{margin:0;font:800 54px/1 var(--display);letter-spacing:-.02em}
+.marca h1 em{font-style:normal;color:var(--tinta2);font-weight:500}
+.pill{display:inline-block;margin-left:16px;vertical-align:10px;font:600 15px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:7px 12px;border-radius:999px;border:1px solid var(--sol);color:var(--sol)}
+.direita{display:flex;align-items:flex-end;gap:40px}
+.relogio{font:700 54px/1 var(--display);letter-spacing:-.02em}
+.cenas{display:flex;gap:10px;padding-bottom:10px}
+.cenas i{width:12px;height:12px;border-radius:50%;background:var(--linha);transition:background .4s, transform .4s}
+.cenas i.on{background:var(--tinta);transform:scale(1.25)}
+
+/* cenas */
+main{position:relative}
+.cena{position:absolute;inset:0;padding:56px 72px 40px;opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease;pointer-events:none}
+.cena.on{opacity:1;transform:none}
+.titulo{font:600 20px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--tinta3);margin:0 0 14px}
+.frase{font:700 64px/1.05 var(--display);letter-spacing:-.025em;margin:0 0 44px;max-width:1500px;text-wrap:balance}
+.frase b{color:var(--sol);font-weight:800}
+
+/* cena 1: o mês */
+.mes{display:grid;grid-template-columns:1.15fr 1fr;gap:64px;height:690px}
+.fatura{display:flex;flex-direction:column;justify-content:space-between;padding:8px 0}
+.gigante{font:800 260px/.82 var(--display);letter-spacing:-.05em}
+.gigante sup{font-size:.34em;vertical-align:.95em;margin-left:10px;font-weight:700;color:var(--tinta2)}
+.leg{font:500 30px/1.35 var(--corpo);color:var(--tinta2);max-width:820px}
+.leg b{color:var(--tinta);font-weight:700}
+.auto{margin-top:34px}
+.auto .barra{height:28px;border-radius:14px;display:flex;overflow:hidden;gap:4px;background:var(--chao3)}
+.auto .barra span{display:block;height:100%;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.auto .chaves{display:flex;gap:34px;margin-top:16px;font:500 24px/1 var(--corpo);color:var(--tinta2)}
+.chaves i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:10px;vertical-align:-1px}
+.lado{display:grid;grid-template-rows:1fr 1fr;gap:28px}
+.cartao{background:var(--chao2);border:1px solid var(--linha);border-radius:28px;padding:34px 40px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.cartao .rot{font:600 18px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.cartao .val{font:800 118px/.9 var(--display);letter-spacing:-.04em}
+.cartao .val small{font-size:.36em;font-weight:600;color:var(--tinta2);margin-left:8px;letter-spacing:-.01em}
+.cartao .sub{font:500 25px/1.3 var(--corpo);color:var(--tinta2)}
+.cartao.sol .rot{color:var(--sol)} .cartao.carro .rot{color:var(--carro)}
+.cartao.sol::after{content:"";position:absolute;right:-90px;top:-90px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle, rgba(244,179,61,.35), transparent 65%)}
+.vs{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:16px;font:500 22px/1 var(--corpo);color:var(--tinta2);margin-top:6px}
+.vs .t{height:16px;border-radius:8px;background:var(--chao3);overflow:hidden}
+.vs .t span{display:block;height:100%;border-radius:8px;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.vs b{color:var(--tinta);font:700 24px/1 var(--display);text-align:right}
+
+/* cena 2: fluxos */
+#fluxo{width:100%;height:760px;margin-top:-20px}
+#fluxo .no rect{fill:var(--chao2);stroke:var(--linha);stroke-width:2}
+#fluxo .no .nome{font:600 20px var(--mono);letter-spacing:.12em;text-transform:uppercase;fill:var(--tinta3)}
+#fluxo .no .v{font:800 54px var(--display);letter-spacing:-.02em;fill:var(--tinta)}
+#fluxo .no .u{font:500 22px var(--corpo);fill:var(--tinta2)}
+#fluxo .fio{fill:none;stroke-linecap:round;opacity:.9}
+#fluxo .corre{fill:none;stroke-linecap:round;stroke:rgba(255,255,255,.55);stroke-dasharray:2 28;animation:corre 1.6s linear infinite}
+#fluxo .et{font:700 26px var(--display);fill:var(--tinta);paint-order:stroke;stroke:var(--chao);stroke-width:8px;stroke-linejoin:round}
+#fluxo .et2{font:500 18px var(--mono);fill:var(--tinta3);letter-spacing:.06em}
+@keyframes corre{to{stroke-dashoffset:-30}}
+
+/* cena 3: quem gasta */
+.lista{display:flex;flex-direction:column;gap:18px}
+.linha{display:grid;grid-template-columns:520px 1fr 170px 190px;align-items:center;gap:28px}
+.linha .n{font:600 30px/1.1 var(--corpo)}
+.linha .n small{display:block;font:500 17px/1.3 var(--mono);color:var(--tinta3);letter-spacing:.06em;text-transform:uppercase;margin-top:6px}
+.linha .t{height:34px;border-radius:10px;background:var(--chao3);overflow:hidden}
+.linha .t span{display:block;height:100%;border-radius:10px;transition:width 1.3s cubic-bezier(.2,.8,.2,1)}
+.linha .t span.est{background-image:repeating-linear-gradient(135deg, rgba(0,0,0,.28) 0 8px, transparent 8px 16px)}
+.linha .e{font:800 46px/1 var(--display);text-align:right;letter-spacing:-.02em}
+.linha .k{font:500 24px/1 var(--corpo);color:var(--tinta2);text-align:right}
+.nota{margin-top:26px;font:500 20px/1.4 var(--corpo);color:var(--tinta3)}
+
+/* cena 4: a mudança */
+.mud{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:56px;align-items:end;height:560px}
+.col{display:flex;flex-direction:column;gap:22px}
+.col .rot{font:600 20px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--tinta3)}
+.torre{height:380px;width:260px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px}
+.torre span{display:block;border-radius:14px;transition:height 1.5s cubic-bezier(.2,.8,.2,1)}
+.col .lbl{font:500 24px/1.3 var(--corpo);color:var(--tinta2)}
+.col .lbl b{color:var(--tinta);font:700 30px var(--display)}
+.ganho{align-self:center;display:flex;flex-direction:column;gap:18px}
+.ganho .pct{font:800 210px/.82 var(--display);letter-spacing:-.05em;color:var(--bom)}
+.ganho .txt{font:500 30px/1.35 var(--corpo);color:var(--tinta2)}
+.ganho .txt b{color:var(--tinta)}
+
+/* cena 5: tarifários */
+.tar{display:flex;flex-direction:column;gap:16px}
+.tar .linha{grid-template-columns:720px 1fr 170px 200px}
+.tar .linha.atual .n{color:var(--bom)}
+.tar .linha .d{font:600 24px/1 var(--mono);color:var(--tinta3);text-align:right}
+
+/* cena 6: evolução */
+.evo{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:48px;align-items:end;height:560px;padding:0 20px}
+.mesb{display:flex;flex-direction:column;align-items:stretch;gap:16px}
+.par{display:flex;gap:12px;align-items:flex-end;height:430px}
+.par div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:10px}
+.par span{display:block;width:100%;border-radius:14px 14px 6px 6px;transition:height 1.4s cubic-bezier(.2,.8,.2,1)}
+.par em{font:700 30px var(--display);font-style:normal}
+.mesb .m{font:600 26px var(--corpo);text-align:center;color:var(--tinta2)}
+
+/* rodapé */
+footer{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:28px;padding:0 72px;border-top:1px solid var(--linha);position:relative}
+footer .rot{font:600 17px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--sol)}
+footer .dica{font:500 27px/1.2 var(--corpo);color:var(--tinta);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+footer .dica b{color:var(--bom);font-weight:700}
+#progresso{position:absolute;left:0;top:-1px;height:3px;background:var(--tinta);width:0}
+@media (prefers-reduced-motion:reduce){.cena{transition:none} #fluxo .corre{animation:none} *{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="palco">
+  <header>
+    <div class="marca"><small id="sub">Energia cá de casa</small><h1><span id="mesLabel">—</span><span id="prov"></span></h1></div>
+    <div class="direita"><div class="cenas" id="pontos"></div><div class="relogio num" id="relogio">--:--</div></div>
+  </header>
+  <main id="cenas"></main>
+  <footer><div id="progresso"></div><div class="rot">Dica do mês</div><div class="dica" id="dica"></div></footer>
+</div>
+<script>
+/* Quadro da Energia — lê data.json da mesma pasta. Parâmetros: ?cena=N (começa na cena N), ?parar (não roda: para gravar). */
+const Q = new URLSearchParams(location.search);
+const DUR = 13000;
+const eur = (v,d=0)=>v.toLocaleString("pt-PT",{minimumFractionDigits:d,maximumFractionDigits:d});
+const kwh = v=>Math.round(v).toLocaleString("pt-PT");
+const $ = s=>document.querySelector(s);
+
+function ajustar(){ const p=$("#palco"); const k=Math.min(innerWidth/1920, innerHeight/1080); p.style.transform=`translate(-50%,-50%) scale(${k})`; }
+addEventListener("resize", ajustar); ajustar();
+setInterval(()=>{ const d=new Date(); $("#relogio").textContent=d.toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"}); }, 1000);
+
+function contar(el){ // números que sobem até ao valor final
+  const alvo=parseFloat(el.dataset.v), dec=+(el.dataset.d||0), t0=performance.now(), T=1300;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches){ el.textContent=eur(alvo,dec); return; }
+  const f=t=>{ const k=Math.min(1,(t-t0)/T), e=1-Math.pow(1-k,3); el.textContent=eur(alvo*e,dec); if(k<1) requestAnimationFrame(f); };
+  requestAnimationFrame(f);
+}
+const N=(v,d=0)=>`<span class="num" data-v="${v}" data-d="${d}">0</span>`;
+
+/* ---------- cenas ---------- */
+function cenaMes(D){
+  const m=D.mes, c=D.carro;
+  // origem do que a casa consumiu: sol direto + bateria + rede = 100%
+  const solDir=m.solar_direto/m.consumo, batPct=m.bat_casa/m.consumo, redePct=Math.max(0,1-solDir-batPct);
+  return `<p class="titulo">O mês num relance</p>
+  <div class="mes">
+    <div class="fatura">
+      <div><div class="gigante">${N(m.fatura)}<sup>€</sup></div>
+      <p class="leg">Fatura ${m.provisorio?"estimada":"do mês"} · <b>${kwh(m.compras)} kWh</b> comprados à rede${m.vazio_pct!=null?`, <b>${Math.round(m.vazio_pct*100)}%</b> em horas de vazio`:""}.${m.solar?` Sem os painéis seriam <b>${eur(m.sem_solar)} €</b>.`:""}</p></div>
+      <div class="auto">
+        <div class="barra"><span style="width:0;background:var(--sol)" data-w="${solDir*100}"></span><span style="width:0;background:var(--bat)" data-w="${batPct*100}"></span><span style="width:0;background:var(--rede)" data-w="${redePct*100}"></span></div>
+        <div class="chaves"><span><i style="background:var(--sol)"></i>Sol ${Math.round(solDir*100)}%</span><span><i style="background:var(--bat)"></i>Bateria ${Math.round(batPct*100)}%</span><span><i style="background:var(--rede)"></i>Rede ${Math.round(redePct*100)}%</span></div>
+      </div>
+    </div>
+    <div class="lado">
+      ${m.solar?`<div class="cartao sol"><div class="rot">O sol poupou</div><div class="val">${N(m.solar_eur)}<small>€</small></div><div class="sub">${kwh(m.solar)} kWh produzidos · ${D.casa.exporta? "exportação incluída" : "tudo consumido cá em casa"}</div></div>`:`<div class="cartao"><div class="rot">Consumo da casa</div><div class="val">${N(m.consumo/m.dias,1)}<small>kWh / dia</small></div><div class="sub">${kwh(m.consumo)} kWh no mês</div></div>`}
+      ${c?`<div class="cartao carro"><div class="rot">${c.nome} · ${kwh(c.km)} km</div><div class="val">${N(c.eur100,2)}<small>€ / 100 km</small></div>
+        <div><div class="vs"><span>Elétrico</span><div class="t"><span data-w="${c.eur100/c.gas100*100}" style="width:0;background:var(--carro)"></span></div><b>${eur(c.eur,0)} €</b></div>
+        <div class="vs"><span>A gasolina</span><div class="t"><span data-w="100" style="width:0;background:var(--tinta3)"></span></div><b>${eur(c.gas_eur,0)} €</b></div></div></div>`
+      :`<div class="cartao"><div class="rot">Consumo da casa</div><div class="val">${N(m.consumo/m.dias,1)}<small>kWh / dia</small></div><div class="sub">${kwh(m.consumo)} kWh no mês</div></div>`}
+    </div>
+  </div>`;
+}
+
+function cenaFluxo(D){
+  const m=D.mes, c=D.carro;
+  if(!m.solar && !m.bat_casa) return null;
+  const ed=[ // de, para, kWh, cor
+    ["sol","casa",m.solar_direto,"var(--sol)"],["sol","bat",m.solar_bat,"var(--sol)"],
+    ["rede","bat",m.rede_bat,"var(--rede)"],["bat","casa",m.bat_casa,"var(--bat)"],["rede","casa",m.rede_casa,"var(--rede)"]];
+  if(c) ed.push(["casa","carro",c.kwh,"var(--carro)"]);
+  ed.push(["casa","resto",m.consumo-(c?c.kwh:0),"var(--casa)"]);
+  const P={sol:[180,110],bat:[620,380],rede:[180,650],casa:[1120,380],carro:[1590,170],resto:[1590,590]};
+  const max=Math.max(...ed.map(e=>e[2])), w=v=>6+44*Math.sqrt(v/max);
+  const nomes={sol:"Sol",bat:"Bateria",rede:"Rede",casa:"Casa",carro:c?c.nome:"",resto:"Resto da casa"};
+  const valNo={sol:m.solar, bat:m.bat_casa, rede:m.compras, casa:m.consumo, carro:c?c.kwh:0, resto:m.consumo-(c?c.kwh:0)};
+  const cor={sol:"var(--sol)",bat:"var(--bat)",rede:"var(--rede)",casa:"var(--casa)",carro:"var(--carro)",resto:"var(--tinta2)"};
+  const caminho=(a,b,off)=>{const [x1,y1]=P[a],[x2,y2]=P[b]; const mx=(x1+x2)/2; return `M${x1+150} ${y1+off} C ${mx+60} ${y1+off}, ${mx-60} ${y2+off}, ${x2-150} ${y2+off}`;};
+  let fios="", ets="";
+  const offs={"sol-casa":-30,"bat-casa":0,"rede-casa":30,"sol-bat":-14,"rede-bat":14,"casa-carro":-20,"casa-resto":20};
+  ed.forEach(([a,b,v,k])=>{ if(v<1) return; const d=caminho(a,b,offs[a+"-"+b]||0);
+    fios+=`<path class="fio" d="${d}" stroke="${k}" stroke-width="${w(v)}" stroke-opacity=".75" data-et="${kwh(v)} kWh"/><path class="corre" d="${d}" stroke-width="${Math.max(3,w(v)*.35)}"/>`; });
+  const nos=Object.keys(P).filter(k=>k!=="carro"||c).map(k=>{const [x,y]=P[k]; return `<g class="no"><rect x="${x-150}" y="${y-78}" width="300" height="156" rx="26" style="stroke:${cor[k]}"/><text class="nome" x="${x}" y="${y-30}" text-anchor="middle">${nomes[k]}</text><text class="v" x="${x}" y="${y+28}" text-anchor="middle">${kwh(valNo[k])}</text><text class="u" x="${x}" y="${y+58}" text-anchor="middle">kWh</text></g>`;}).join("");
+  return `<p class="titulo">Para onde foi a energia este mês</p>
+  <svg id="fluxo" viewBox="0 0 1776 760" role="img" aria-label="Fluxos de energia do mês">${fios}${ets}${nos}</svg>`;
+}
+
+function cenaQuem(D){
+  if(!D.consumidores.length) return null;
+  const L=D.consumidores.slice(0,7), max=Math.max(...L.map(x=>x.eur));
+  return `<p class="titulo">Quem gasta mais</p><h2 class="frase">${L[0].nome} é o maior gasto: <b>${eur(L[0].eur)} € por mês</b>.</h2>
+  <div class="lista">${L.map(x=>`<div class="linha"><div class="n">${x.nome}<small>${x.medido?"medido":"estimado"}${x.nota?" · "+x.nota:""}</small></div>
+    <div class="t"><span class="${x.medido?"":"est"}" data-w="${x.eur/max*100}" style="width:0;background:${x.cor||"var(--tinta2)"}"></span></div>
+    <div class="e num">${N(x.eur)} €</div><div class="k num">${kwh(x.kwh)} kWh</div></div>`).join("")}</div>
+  <p class="nota">Barras às riscas: valores estimados, ainda sem tomada de medição.</p>`;
+}
+
+function cenaMudanca(D){
+  const x=D.mudanca; if(!x) return null;
+  const max=Math.max(x.antes.vazio+x.antes.fora, x.depois.vazio+x.depois.fora), H=380;
+  const torre=(o)=>`<div class="torre"><span data-h="${o.fora/max*H}" style="height:0;background:var(--mau)"></span><span data-h="${o.vazio/max*H}" style="height:0;background:var(--rede)"></span></div>`;
+  const pct=Math.round((1-x.depois.fora/x.antes.fora)*100);
+  return `<p class="titulo">${x.titulo}</p><h2 class="frase">${x.frase}</h2>
+  <div class="mud">
+    <div class="col"><div class="rot">Antes · ${x.antes.label}</div>${torre(x.antes)}<div class="lbl"><b>${eur(x.antes.fora,1)} kWh</b> por dia em horas caras · ${eur(x.antes.eur_dia,2)} €/dia</div></div>
+    <div class="col"><div class="rot">Depois · ${x.depois.label}</div>${torre(x.depois)}<div class="lbl"><b>${eur(x.depois.fora,1)} kWh</b> por dia em horas caras · ${eur(x.depois.eur_dia,2)} €/dia</div></div>
+    <div class="ganho"><div class="pct">−${N(pct)}%</div><div class="txt">de energia comprada nas horas caras.<br><b>${x.resultado}</b></div>
+      <div class="chaves" style="display:flex;gap:28px;font:500 22px var(--corpo);color:var(--tinta2)"><span><i style="background:var(--mau)"></i>Fora de vazio</span><span><i style="background:var(--rede)"></i>Vazio</span></div></div>
+  </div>`;
+}
+
+function cenaTarifas(D){
+  const t=D.tarifarios; if(!t) return null;
+  const L=t.opcoes.slice(0,6), a=L.find(o=>o.atual)||L[0], maxD=Math.max(1,...L.map(o=>o.total-a.total));
+  const melhor=[...L].sort((p,q)=>p.total-q.total)[0];
+  const frase = melhor.atual ? `Testei <b>${t.testados} tarifários</b>. O meu continua a ser o mais barato.` : `Há um tarifário <b>${eur(a.total-melhor.total)} € mais barato</b> por mês.`;
+  return `<p class="titulo">Há tarifário mais barato? · fatura de ${t.periodo}</p><h2 class="frase">${frase}</h2>
+  <div class="tar">${L.map(o=>`<div class="linha ${o.atual?"atual":""}"><div class="n">${o.nome}${o.atual?"<small>o meu tarifário</small>":""}</div>
+    <div class="t">${o.atual?`<span style="width:100%;background:none;font:600 22px/34px var(--mono);color:var(--bom);padding-left:4px">✓ o mais barato</span>`:`<span data-w="${(o.total-a.total)/maxD*100}" style="width:0;background:var(--mau)"></span>`}</div>
+    <div class="d num">${o.atual?"":"+"+eur(o.total-a.total)+" €"}</div><div class="e num">${eur(o.total)} €</div></div>`).join("")}</div>
+  <p class="nota">Barra vermelha: quanto pagaria a mais no mesmo período. Simulação com os consumos reais da fatura, no simulador de tarifários de tiagofelicia.pt.</p>`;
+}
+
+function cenaEvolucao(D){
+  const H=D.historico; if(!H||H.length<2) return null;
+  const max=Math.max(...H.map(h=>Math.max(h.fatura,h.solar_eur)));
+  return `<p class="titulo">Mês a mês</p><h2 class="frase">Quanto paguei <span style="color:var(--rede)">à rede</span> e quanto o <span style="color:var(--sol)">sol</span> me poupou.</h2>
+  <div class="evo" style="--n:${H.length}">${H.map(h=>`<div class="mesb"><div class="par">
+    <div><em class="num">${eur(h.fatura)} €</em><span data-h="${h.fatura/max*380}" style="height:0;background:var(--rede)"></span></div>
+    <div><em class="num" style="color:var(--sol)">${eur(h.solar_eur)} €</em><span data-h="${h.solar_eur/max*380}" style="height:0;background:var(--sol)"></span></div>
+  </div><div class="m">${h.label}${h.provisorio?" *":""}</div></div>`).join("")}</div>
+  <p class="nota">* mês ainda em curso.</p>`;
+}
+
+/* ---------- motor ---------- */
+let CENAS=[], i=0, timer=null, t0=0;
+function mostrar(k){
+  i=(k+CENAS.length)%CENAS.length;
+  document.querySelectorAll(".cena").forEach((el,j)=>el.classList.toggle("on", j===i));
+  document.querySelectorAll("#pontos i").forEach((el,j)=>el.classList.toggle("on", j===i));
+  const el=document.querySelectorAll(".cena")[i];
+  el.querySelectorAll("[data-w]").forEach(s=>{s.style.width="0"; setTimeout(()=>s.style.width=s.dataset.w+"%", 60);});
+  el.querySelectorAll("[data-h]").forEach(s=>{s.style.height="0"; setTimeout(()=>s.style.height=s.dataset.h+"px", 60);});
+  el.querySelectorAll("[data-v]").forEach(contar);
+  t0=performance.now();
+}
+function progresso(){ if(!Q.has("parar")){ const k=Math.min(1,(performance.now()-t0)/DUR); $("#progresso").style.width=(k*100)+"%"; if(k>=1) mostrar(i+1);} requestAnimationFrame(progresso); }
+addEventListener("keydown",e=>{ if(e.key==="ArrowRight") mostrar(i+1); if(e.key==="ArrowLeft") mostrar(i-1); });
+document.addEventListener("click",()=>mostrar(i+1));
+
+fetch("data.json",{cache:"no-store"}).then(r=>r.json()).then(D=>{
+  for (const k of ["solar","solar_direto","solar_bat","bat_casa","rede_bat","sem_solar","solar_eur","autossuf"]) D.mes[k]=D.mes[k]||0;
+  if (D.mes.rede_casa==null) D.mes.rede_casa = D.mes.compras - D.mes.rede_bat;
+  D.consumidores = D.consumidores||[];
+  $("#sub").textContent = D.titulo || "Energia cá de casa";
+  $("#mesLabel").textContent = D.mes.label;
+  if (D.mes.provisorio) $("#prov").innerHTML = `<span class="pill">até dia ${D.mes.ate}</span>`;
+  const dicas = D.dicas||[]; let di=0;
+  const poeDica=()=>{ if(!dicas.length) return; const d=dicas[di++%dicas.length]; $("#dica").innerHTML = `${d.texto}${d.eur?` <b>−${eur(d.eur)} €/mês</b>`:""}`; };
+  poeDica(); setInterval(poeDica, DUR*2);
+  const html=[cenaMes(D),cenaFluxo(D),cenaQuem(D),cenaMudanca(D),cenaTarifas(D),cenaEvolucao(D)].filter(Boolean);
+  $("#cenas").innerHTML = html.map(h=>`<section class="cena">${h}</section>`).join("");
+  $("#pontos").innerHTML = html.map(()=>"<i></i>").join("");
+  // etiquetas dos fluxos: a meio de cada fio, já com a geometria real
+  const svg=document.getElementById("fluxo");
+  if (svg) svg.querySelectorAll("path.fio").forEach(p=>{ const L=p.getTotalLength(), q=p.getPointAtLength(L*.5);
+    const t=document.createElementNS("http://www.w3.org/2000/svg","text"); t.setAttribute("class","et"); t.setAttribute("x",q.x); t.setAttribute("y",q.y+9);
+    t.setAttribute("text-anchor","middle"); t.textContent=p.dataset.et; svg.insertBefore(t, svg.querySelector(".no")); });
+  CENAS=html; mostrar((+Q.get("cena")||1)-1); requestAnimationFrame(progresso);
+});
+</script>
+</body>
+</html>

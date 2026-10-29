@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Lê os contadores do SmartThings às 08h e às 22h (início e fim do vazio no bi-horário diário). -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>pt.exemplo.energia.smartthings</string>
+  <key>ProgramArguments</key><array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/O-TEU-UTILIZADOR/energia-casa/scripts/smartthings-leitura.py</string>
+  </array>
+  <key>StartCalendarInterval</key><array>
+    <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Hour</key><integer>22</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
+  <key>EnvironmentVariables</key><dict><key>PATH</key><string>/opt/homebrew/bin:/usr/bin:/bin</string></dict>
+  <key>StandardErrorPath</key><string>/Users/O-TEU-UTILIZADOR/energia-casa/dados/smartthings/logs/leitura.err</string>
+</dict></plist>

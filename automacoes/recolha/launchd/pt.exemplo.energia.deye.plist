@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Lê o inversor de 5 em 5 minutos. Copiar para ~/Library/LaunchAgents/, trocar O-TEU-UTILIZADOR e os valores
+     SOLARMAN_*, e carregar com: launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/pt.exemplo.energia.deye.plist
+     Testar com: launchctl kickstart gui/$(id -u)/pt.exemplo.energia.deye -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>pt.exemplo.energia.deye</string>
+  <key>ProgramArguments</key><array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/O-TEU-UTILIZADOR/energia-casa/scripts/deye-leitura.py</string>
+  </array>
+  <key>EnvironmentVariables</key><dict>
+    <key>SOLARMAN_SN</key><string>NUMERO-DE-SERIE-DO-LOGGER</string>
+    <key>SOLARMAN_MAC</key><string>aa:bb:cc:dd:ee:ff</string>
+  </dict>
+  <key>StartInterval</key><integer>300</integer>
+  <key>StandardErrorPath</key><string>/Users/O-TEU-UTILIZADOR/energia-casa/dados/deye/logs/leitura.err</string>
+</dict></plist>

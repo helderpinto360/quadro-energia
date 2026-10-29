@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Energia cá de casa · 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Mesmo mundo visual do quadro 2D: carvão quente, e cada fonte de energia com a sua cor. Um só tema escuro, de propósito (TV numa sala). */
+:root{
+  --chao:#12100d; --chao2:#1a1713; --chao3:#221e19; --linha:#2e2922;
+  --tinta:#f3ede3; --tinta2:#b6ad9f; --tinta3:#7d7569;
+  --sol:#f4b33d; --bat:#3cc4a5; --rede:#9a8cff; --carro:#ff7a59; --quente:#ff8a4c; --bom:#5fcf73; --mau:#ff6b6b;
+  --display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif; --corpo:"Figtree","Helvetica Neue",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--chao);color:var(--tinta);font-family:var(--corpo);overflow:hidden}
+.num{font-variant-numeric:tabular-nums}
+.app{height:100%;display:grid;grid-template-columns:340px 1fr}
+
+/* barra lateral */
+.lado{background:var(--chao2);border-right:1px solid var(--linha);padding:26px 24px;display:flex;flex-direction:column;gap:22px;overflow:auto}
+.hora{font:800 64px/1 var(--display);letter-spacing:-.03em;margin:0}
+.data{color:var(--tinta3);font:500 15px var(--corpo);margin:6px 0 0}
+.rot{font:600 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--tinta3);margin:0 0 10px}
+.mes h2{font:700 26px/1.1 var(--display);margin:0;letter-spacing:-.01em}
+.mes h2 .pill{display:inline-block;margin-left:8px;vertical-align:4px;font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:999px;border:1px solid var(--sol);color:var(--sol)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--chao3);border-radius:14px;padding:14px 14px 12px;border:1px solid var(--linha)}
+.kpi b{display:block;font:800 30px/1 var(--display);letter-spacing:-.02em}
+.kpi b small{font-size:.5em;font-weight:600;color:var(--tinta2);margin-left:3px}
+.kpi span{display:block;margin-top:6px;font:500 13px/1.25 var(--corpo);color:var(--tinta2)}
+.kpi.grande{grid-column:1/-1}
+.kpi.grande b{font-size:46px}
+nav{display:flex;gap:6px}
+nav button{flex:1;font:600 14px var(--corpo);color:var(--tinta2);background:var(--chao3);border:1px solid var(--linha);border-radius:10px;padding:10px 8px;cursor:pointer}
+nav button[aria-pressed="true"]{background:var(--tinta);color:var(--chao);border-color:var(--tinta)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--sol);outline-offset:2px}
+.dica{font:500 15px/1.4 var(--corpo);color:var(--tinta);background:var(--chao3);border-radius:14px;padding:14px;border:1px solid var(--linha)}
+.dica b{color:var(--bom)}
+.nota{font:500 12px/1.45 var(--corpo);color:var(--tinta3);margin:auto 0 0}
+
+/* palco */
+.palco{position:relative;min-width:0;--noite:0;background:radial-gradient(120% 90% at 50% 0%, #0f0d0b 0%, #070605 70%)}
+.palco::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 55% 0%, #4a4136 0%, #2a251f 45%, #16130f 85%);opacity:calc(1 - var(--noite));pointer-events:none}
+#cena{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#sobre{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.topo{position:absolute;top:20px;left:24px;right:24px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;pointer-events:none}
+.titulo{margin:0;font:800 34px/1 var(--display);letter-spacing:-.02em}
+.titulo small{display:block;font:500 15px/1.4 var(--corpo);color:var(--tinta2);letter-spacing:0;margin-top:6px}
+.legenda{display:flex;gap:14px;font:500 13px var(--corpo);color:var(--tinta2);background:rgba(26,23,19,.85);border:1px solid var(--linha);border-radius:999px;padding:8px 14px;pointer-events:auto}
+.legenda i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0}
+.fluxo{position:absolute;transform:translate(-50%,-50%);background:rgba(18,16,13,.84);border:1px solid var(--linha);border-radius:12px;padding:7px 12px;text-align:center;min-width:96px;backdrop-filter:blur(6px);transition:opacity .4s}
+.fluxo span{display:block;font:600 11px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tinta3)}
+.fluxo b{font:800 22px/1.15 var(--display);letter-spacing:-.01em}
+.fluxo.sol b{color:var(--sol)} .fluxo.bat b{color:var(--bat)} .fluxo.rede b{color:var(--rede)} .fluxo.carro b{color:var(--carro)} .fluxo.quente b{color:var(--quente)}
+.fluxo.dim{opacity:.35}
+.chip{position:absolute;transform:translate(-50%,-100%);pointer-events:auto;cursor:pointer;background:rgba(26,23,19,.86);border:1px solid var(--linha);border-radius:10px;padding:5px 9px;font:500 12px var(--corpo);color:var(--tinta);white-space:nowrap}
+
+/* cartão do objeto */
+.cartao{position:absolute;left:24px;bottom:118px;width:min(380px,calc(100% - 48px));background:var(--chao2);border:1px solid var(--linha);border-radius:18px;padding:18px 20px;pointer-events:auto;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
+.cartao[hidden]{display:none}
+.cartao h3{margin:0;font:800 24px/1.1 var(--display);letter-spacing:-.01em}
+.cartao .sub{margin:0;font:500 13px/1.4 var(--mono);color:var(--tinta3)}
+.cartao .linhas{display:grid;grid-template-columns:1fr auto;gap:6px 16px;font:500 15px var(--corpo);color:var(--tinta2)}
+.cartao .linhas b{color:var(--tinta);font:700 17px var(--display);text-align:right}
+.cartao .dc{font:500 14px/1.4 var(--corpo);color:var(--tinta);border-top:1px dashed var(--linha);padding-top:10px}
+.cartao .dc b{color:var(--bom)}
+.cartao button{align-self:flex-start;font:600 13px var(--corpo);background:var(--chao3);color:var(--tinta);border:1px solid var(--linha);border-radius:8px;padding:7px 12px;cursor:pointer}
+
+/* legenda do passeio */
+.app.passeio .titulo{opacity:0}
+.historia{position:absolute;left:24px;top:28px;max-width:640px;pointer-events:none;transition:opacity .6s}
+.historia[hidden]{display:block;opacity:0}
+.historia .k{font:600 13px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--sol);margin:0 0 10px}
+.historia .t{font:800 48px/1.04 var(--display);letter-spacing:-.025em;margin:0;text-wrap:balance;text-shadow:0 2px 24px rgba(0,0,0,.6)}
+.historia .t em{font-style:normal;color:var(--sol)}
+
+/* linha do tempo */
+.tempo{position:absolute;left:24px;right:24px;bottom:20px;height:78px;background:rgba(26,23,19,.92);border:1px solid var(--linha);border-radius:18px;display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:18px;padding:0 20px;pointer-events:auto}
+.play{width:46px;height:46px;border-radius:50%;border:0;background:var(--tinta);color:var(--chao);font:700 18px var(--corpo);cursor:pointer}
+.relogio{font:800 34px/1 var(--display);letter-spacing:-.02em;min-width:104px}
+.relogio small{display:block;font:500 12px/1.3 var(--mono);color:var(--tinta3);letter-spacing:.06em;margin-top:4px}
+.trilho{position:relative;height:46px}
+#curva{position:absolute;inset:0;width:100%;height:100%}
+#hora{position:absolute;inset:0;width:100%;margin:0;opacity:0;cursor:pointer}
+#cursor{position:absolute;top:0;bottom:0;width:2px;background:var(--tinta);pointer-events:none}
+.dias{display:flex;gap:6px}
+.dias button{font:600 13px var(--corpo);color:var(--tinta2);background:var(--chao3);border:1px solid var(--linha);border-radius:8px;padding:8px 10px;cursor:pointer}
+.dias button[aria-pressed="true"]{color:var(--chao);background:var(--sol);border-color:var(--sol)}
+.erro{position:absolute;left:24px;bottom:120px;background:var(--chao2);border:1px solid var(--linha);padding:12px;border-radius:10px}
+@media (max-width:900px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}.lado{flex-direction:row;flex-wrap:wrap;padding:12px 16px;gap:12px}.hora{font-size:32px}.kpis,.dica,.nota,.data{display:none}.historia .t{font-size:30px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="lado">
+    <div><p class="hora num" id="horaReal">--:--</p><p class="data" id="dataReal"></p></div>
+    <div class="mes"><p class="rot">Este mês</p><h2 id="mesLabel">—</h2></div>
+    <div class="kpis" id="kpis"></div>
+    <nav aria-label="Vista"><button data-vista="energia" aria-pressed="true">Energia</button><button data-vista="casa" aria-pressed="false">Divisões</button><button data-vista="tour" aria-pressed="false">Passeio</button></nav>
+    <div><p class="rot">Dica do mês</p><div class="dica" id="dica"></div></div>
+    <p class="nota" id="nota">Toca num objeto da casa para ver quanto gasta. A linha do tempo repete um dia real medido pelo inversor.</p>
+  </aside>
+  <main class="palco">
+    <canvas id="cena" aria-label="Casa em 3D com os fluxos de energia"></canvas>
+    <div id="sobre"></div>
+    <div class="topo"><p class="titulo" id="titulo">A nossa casa<small id="subtitulo">Um dia de energia, medido de 15 em 15 minutos</small></p>
+      <div class="legenda"><span><i style="background:var(--sol)"></i>Sol</span><span><i style="background:var(--bat)"></i>Bateria</span><span><i style="background:var(--rede)"></i>Rede</span><span><i style="background:var(--carro)"></i>Carro</span></div></div>
+    <div class="historia" id="historia" hidden><p class="k" id="hk"></p><p class="t" id="ht"></p></div>
+    <section class="cartao" id="cartao" hidden aria-live="polite"><div><h3 id="cNome"></h3><p class="sub" id="cSub"></p></div><div class="linhas" id="cLinhas"></div><div class="dc" id="cDica" hidden></div><button id="cFechar">Fechar</button></section>
+    <div class="tempo">
+      <button class="play" id="play" aria-label="Reproduzir o dia">▶</button>
+      <div class="relogio num" id="relogio">00:00<small id="relSub">—</small></div>
+      <div class="trilho"><svg id="curva" preserveAspectRatio="none" viewBox="0 0 960 46"></svg><div id="cursor"></div><input type="range" id="hora" min="0" max="95" value="0" step="0.01" aria-label="Hora do dia"></div>
+      <div class="dias" id="dias"></div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/RoundedBoxGeometry.js"></script>
+<script src="modelo-casa.js"></script>
+<script src="casa-cena.js"></script>
+<script src="estilo.js"></script>
+<script src="carro.js"></script>
+<script>
+(async function(){
+const Q = new URLSearchParams(location.search);
+const eur = (v,d=0)=>(+v).toLocaleString("pt-PT",{minimumFractionDigits:d,maximumFractionDigits:d});
+const kw = w => eur(w/1000, w>=10000?0:1)+" kW";
+const $ = id => document.getElementById(id);
+const M = window.MODELO_CASA;
+if (!window.THREE || !M || !window.construirCasa){ document.querySelector(".palco").insertAdjacentHTML("beforeend",'<p class="erro">Não foi possível carregar o modelo 3D. Recarrega a página.</p>'); return; }
+
+// relógio real
+const fH=new Intl.DateTimeFormat("pt-PT",{hour:"2-digit",minute:"2-digit"}), fD=new Intl.DateTimeFormat("pt-PT",{weekday:"long",day:"numeric",month:"long"});
+const rel=()=>{const d=new Date(); $("horaReal").textContent=fH.format(d); $("dataReal").textContent=fD.format(d);}; rel(); setInterval(rel,15000);
+
+// ---------- dados ----------
+const D = await fetch("data.json",{cache:"no-store"}).then(r=>r.json());
+const DIAS = await fetch("dias.json",{cache:"no-store"}).then(r=>r.json()).catch(()=>[]);
+const cacheDia = {};
+const carregarDia = d => cacheDia[d] || (cacheDia[d] = fetch(`dia-${d}.json`,{cache:"no-store"}).then(r=>r.json()));
+const m = D.mes, car = D.carro;
+$("mesLabel").innerHTML = `${m.label}${m.provisorio?`<span class="pill">até dia ${m.ate}</span>`:""}`;
+$("kpis").innerHTML = `
+  <div class="kpi grande"><b class="num">${eur(m.fatura)}<small>€</small></b><span>fatura ${m.provisorio?"estimada":"do mês"} · ${Math.round(m.vazio_pct*100)}% em vazio</span></div>
+  <div class="kpi"><b class="num" style="color:var(--sol)">${eur(m.solar_eur)}<small>€</small></b><span>poupados pelo sol</span></div>
+  <div class="kpi"><b class="num" style="color:var(--bat)">${Math.round(m.autossuf*100)}<small>%</small></b><span>vindo do sol</span></div>
+  ${car?`<div class="kpi grande"><b class="num" style="color:var(--carro)">${eur(car.eur100,2)}<small>€ / 100 km</small></b><span>${car.nome} · a gasolina seriam ${eur(car.gas100,2)} €</span></div>`:""}`;
+const dicas = D.dicas||[]; let di=0;
+const poeDica=()=>{ if(!dicas.length) return; const d=dicas[di++%dicas.length]; $("dica").innerHTML=`${d.texto}${d.eur?` <b>−${eur(d.eur)} €/mês</b>`:""}`; }; poeDica(); setInterval(poeDica,20000);
+const consumidor = re => D.consumidores.find(x=>re.test(x.nome));
+
+// ---------- cena ----------
+const canvas=$("cena");
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true}); renderer.setClearColor(0x000000,0);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputEncoding=THREE.sRGBEncoding;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(32,1,0.1,200);
+const controls=new THREE.OrbitControls(camera,canvas); controls.enableDamping=true; controls.maxPolarAngle=Math.PI*0.47; controls.minDistance=4; controls.maxDistance=70;
+const C=construirCasa(THREE,M,{luzes:true}); scene.add(C.root);
+// o carro em blocos do modelo original sai da garagem: o Model Y passa a estar na rampa
+C.grupos.cave.traverse(o=>{ if(o.isMesh && o.name!=="Espelhos" && [C.MAT.tesla,C.MAT.vidroCarro,C.MAT.pneu].includes(o.material)) o.visible=false; });
+// rampa: desce 1,9 m em 8 m, da rua (x = -7,5) até ao portão da garagem (x = 0,5)
+const RAMPA_ANG=Math.atan2(1.9,8.0), rampaY=x=>-2.043-(x+3.5)*Math.tan(RAMPA_ANG);
+const MODELY = window.criarModelY ? criarModelY(THREE,{cor:"#f4f5f6"}) : null;
+if (MODELY){ const x=-3.6; MODELY.position.set(x,rampaY(x),5.0); MODELY.rotation.z=-RAMPA_ANG; C.grupos.exterior.add(MODELY); }
+// ?leve: sem o estilo de maqueta e com sombras mais simples, para TVs com pouca placa gráfica
+const E = (!Q.has("leve") && window.estilizarCasa) ? estilizarCasa(THREE,renderer,scene,C,{palco:document.querySelector(".palco")}) : {noite(){}};
+const hemi=new THREE.HemisphereLight(0xf2e6d6,0x1a1612,0.35); scene.add(hemi);
+const sol=new THREE.DirectionalLight(0xfff0d8,2.0); sol.castShadow=true; sol.shadow.mapSize.set(Q.has("leve")?1024:4096, Q.has("leve")?1024:4096); sol.shadow.bias=-0.0003; sol.shadow.normalBias=0.02;
+Object.assign(sol.shadow.camera,{left:-24,right:24,top:24,bottom:-24,near:1,far:120}); sol.target.position.set(8,0,3.5); scene.add(sol,sol.target);
+
+
+// objetos com nome (para tocar e para acender)
+const nomeados=[]; C.root.traverse(o=>{ if(o.isMesh && o.name) nomeados.push(o); });
+const por = re => nomeados.filter(o=>re.test(o.name));
+const MY=por(/^Tesla Model Y$/), PAINEIS=por(/^Painel solar/), BATS=por(/^Bateria Felicity/).sort((a,b)=>a.name.localeCompare(b.name)), BAXI=por(/^AQS Baxi/), LAVAR=por(/^Máquina de lavar/), SECAR=por(/^Máquina de secar/), CARREG=por(/^Carregador Tesla/), INV=por(/^Inversor Deye/), PISC=por(/^Piscina$|Bomba de calor FITT/);
+// cada objeto com material próprio, para poder acender sem afetar os outros
+[...PAINEIS,...BATS,...BAXI,...LAVAR,...SECAR,...CARREG,...INV].forEach(o=>{ o.material=o.material.clone(); if(!o.material.emissive) o.material.emissive=new THREE.Color(0); });
+const acender=(lista,cor,k)=>lista.forEach(o=>{ o.material.emissive.set(cor); o.material.emissiveIntensity=k; });
+
+// ---------- fluxos ----------
+const A=C.ancoras; A.rede=new THREE.Vector3(-4.2,2.5,-1.6);
+if (MODELY) A.carro=MODELY.position.clone().add(new THREE.Vector3(0,1.7,0));   // o fluxo do carro vai para o Model Y na rampa   // poste da rede mais perto, para caber no enquadramento
+const fluxosG=new THREE.Group(); scene.add(fluxosG);
+const DEF=[ // chave, de, para, cor
+  ["sol_casa",A.sol,A.casa,"#f4b33d"],["sol_bat",A.sol,A.bateria,"#f4b33d"],["bat_casa",A.bateria,A.casa,"#3cc4a5"],
+  ["rede_casa",A.rede,A.casa,"#9a8cff"],["rede_bat",A.rede,A.bateria,"#9a8cff"],["carro",A.casa,A.carro,"#ff7a59"]];
+const FL=DEF.map(([k,de,para,cor],i)=>{
+  const meio=de.clone().lerp(para,.5); meio.y+=1.4+i*0.18;
+  const curva=new THREE.CatmullRomCurve3([de,meio,para]);
+  // desenhados por cima das paredes (efeito raio X), para os fluxos se verem sempre
+  const tubo=new THREE.Mesh(new THREE.TubeGeometry(curva,48,0.06,8,false),new THREE.MeshBasicMaterial({color:cor,transparent:true,opacity:.1,depthTest:false}));
+  tubo.renderOrder=10; fluxosG.add(tubo);
+  const parts=[...Array(12)].map((_,j)=>{ const s=new THREE.Mesh(new THREE.SphereGeometry(0.17,12,10),new THREE.MeshBasicMaterial({color:cor,depthTest:false})); s.renderOrder=11; fluxosG.add(s); return {s,t:j/12}; });
+  return {k,curva,tubo,parts,w:0};
+});
+{ const g=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.08,3.6,8),new THREE.MeshStandardMaterial({color:"#5a544c"})); g.position.set(-4.2,0.7,-1.6); fluxosG.add(g); }
+
+// etiquetas sobre a cena
+const sobre=$("sobre");
+const ETQ=[["sol","Sol",A.sol.clone().add(new THREE.Vector3(0,1.5,0))],["casa","Casa",A.casa.clone().add(new THREE.Vector3(0,1.4,0))],
+  ["bat","Bateria",A.bateria.clone().add(new THREE.Vector3(-1.4,1.1,-1.3))],["rede","Rede",A.rede.clone().add(new THREE.Vector3(0,2.7,0))],
+  ["carro","Carro",A.carro.clone().add(new THREE.Vector3(-1.6,0.2,1.4))],["quente","Águas quentes",new THREE.Vector3(3.5,-0.6,0.75)]]
+  .map(([cls,nome,pos])=>{ const el=document.createElement("div"); el.className="fluxo "+cls; el.innerHTML=`<span>${nome}</span><b>—</b>`; sobre.appendChild(el); return {cls,nome,pos,el,vis:true}; });
+const etq = cls => ETQ.find(e=>e.cls===cls);
+// divisões (vista Divisões)
+const CHIPS=M.divisoes.filter(d=>!["arrumo","closet","esc_cave"].includes(d.id)).map(d=>{
+  const el=document.createElement("button"); el.className="chip"; el.type="button"; el.textContent=d.nome; sobre.appendChild(el);
+  el.addEventListener("click",()=>cartaoDivisao(d));
+  const z=(d.z!==undefined?d.z:C.zP[d.piso]); return {el,d,pos:new THREE.Vector3((d.x0+d.x1)/2,z+0.9,(d.y0+d.y1)/2),vis:false};
+});
+const v3=new THREE.Vector3();
+function posicionar(){ const w=canvas.clientWidth,h=canvas.clientHeight;
+  [...ETQ,...CHIPS].forEach(o=>{ v3.copy(o.pos).project(camera); const ok=o.vis&&v3.z<1&&Math.abs(v3.x)<1.05&&Math.abs(v3.y)<1.05; o.el.hidden=!ok; if(ok){o.el.style.left=((v3.x+1)/2*w)+"px"; o.el.style.top=((1-v3.y)/2*h)+"px";} }); }
+
+// ---------- estado do dia ----------
+let DIA=null, tq=0, aTocar=!Q.has("parar");
+function ponto(q){ const P=DIA.pontos, i=Math.floor(q), f=q-i, a=P[i], b=P[Math.min(95,i+1)];
+  const o={}; for(const k in a) o[k]= typeof a[k]==="number" ? a[k]+(b[k]-a[k])*f : a[k]; return o; }
+function aplicarHora(q){
+  if(!DIA) return; tq=q; const p=ponto(q), h=q/4;
+  // sol: nasce ~7h45, põe-se ~18h45 (outubro); altura e posição pela hora
+  const nasce=7.75, poe=18.75, dia=Math.max(0,Math.min(1,(h-nasce)/(poe-nasce))), alto=Math.sin(Math.PI*dia);
+  // luz de estúdio: vem do lado da rua e de trás, para a fachada ficar iluminada e o lado comprido em sombra
+  sol.position.set(-22+14*(dia-0.5), 5+26*alto, -9+10*(dia-0.5));
+  
+  const luz=Math.max(0.06, Math.min(1, p.pv/3500)); sol.intensity=alto>0.02?0.4+0.95*luz:0.05; hemi.intensity=0.1+0.2*Math.max(alto,0.05);
+  E.noite(1-Math.min(1,alto*1.8));
+  // luzes interiores à noite
+  const noite = alto<0.05; C.luzes.forEach(({luz,d})=>{ luz.intensity = noite && ["sala","cozinha","jantar","galeria"].includes(d.id) ? 1.2 : 0; });
+  // objetos
+  acender(PAINEIS,"#e09422",Math.min(0.32,p.pv/14000));   // brilho discreto: os painéis "acendem" com a produção
+  BATS.forEach((b,i)=>{ const cheio=p.soc>=(i+1)*25-12; b.material.emissive.set(cheio?"#3cc4a5":"#000"); b.material.emissiveIntensity=cheio?(p.bat_casa>50||p.sol_bat+p.rede_bat>50?0.9:0.45):0; });
+  const hh=Math.min(23,Math.floor(h)), ap=k=>(DIA.aparelhos[k]||[])[hh]||0;
+  const wBaxi=ap("baxi"); acender(BAXI, wBaxi>900?"#ff6b6b":"#ff8a4c", wBaxi>60?Math.min(1,0.35+wBaxi/1200):0);
+  acender(LAVAR,"#c7a6ff",ap("lavar")>60?0.8:0); acender(SECAR,"#c7a6ff",ap("secar")>60?0.8:0);
+  acender(CARREG,"#ff7a59",p.carro>0?1:0);
+  if (MODELY){ const L=MODELY.userData.materiais; L.luzFrente.emissiveIntensity = p.carro>0?1.4:0.5; } acender(INV,"#f3ede3",p.pv>50||p.bat_casa>50?0.25:0);
+  // fluxos
+  FL.forEach(f=>{ f.w=p[f.k]||0; f.tubo.material.opacity=f.w>40?0.22+Math.min(.5,f.w/6000):0.05; f.parts.forEach(x=>x.s.visible=f.w>40 && vista==="energia"); });
+  // etiquetas
+  const set=(cls,txt,dim)=>{ const e=etq(cls); e.el.querySelector("b").textContent=txt; e.el.classList.toggle("dim",!!dim); };
+  set("sol",kw(p.pv),p.pv<50); set("casa",kw(p.carga)); set("rede",kw(p.rede),p.rede<50);
+  set("bat",`${Math.round(p.soc)} % · ${p.bat>40?"a dar "+kw(p.bat):p.bat<-40?"a carregar "+kw(-p.bat):"parada"}`); etq("bat").el.querySelector("span").textContent="Bateria";
+  set("carro",p.carro>0?kw(p.carro):"parado",!(p.carro>0)); etq("carro").el.querySelector("span").textContent=p.carro>0?"Carro (estimado)":"Carro";
+  set("quente",wBaxi>60?kw(wBaxi)+(wBaxi>900?" · resistência":""):"desligada",wBaxi<=60);
+  // linha do tempo
+  const hm=`${String(Math.floor(h)).padStart(2,"0")}:${String(Math.floor((h%1)*60)).padStart(2,"0")}`;
+  $("relogio").firstChild.textContent=hm;
+  const vaz = h>=22||h<8; $("relSub").textContent = vaz ? "vazio · 0,11 €/kWh" : "fora de vazio · 0,19 €/kWh";
+  $("cursor").style.left=(q/95*100)+"%"; $("hora").value=q;
+  if(!$("cartao").hidden && cartaoAtual) cartaoAtual();
+}
+function desenharCurva(){ // produção solar e compra à rede ao longo do dia
+  const P=DIA.pontos, W=960,H=46, mx=Math.max(...P.map(p=>Math.max(p.pv,p.rede)),1);
+  const linha=k=>P.map((p,i)=>`${(i/95*W).toFixed(1)},${(H-2-(p[k]/mx)*(H-6)).toFixed(1)}`).join(" ");
+  const vaz=`<rect x="0" y="0" width="${8/24*W}" height="${H}" fill="rgba(154,140,255,.07)"/><rect x="${22/24*W}" y="0" width="${2/24*W}" height="${H}" fill="rgba(154,140,255,.07)"/>`;
+  $("curva").innerHTML=`${vaz}<polygon points="0,${H} ${linha("pv")} ${W},${H}" fill="rgba(244,179,61,.28)"/><polyline points="${linha("rede")}" fill="none" stroke="#9a8cff" stroke-width="2" vector-effect="non-scaling-stroke"/><polyline points="${linha("pv")}" fill="none" stroke="#f4b33d" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+}
+async function mudarDia(d){ DIA=await carregarDia(d); desenharCurva();
+  document.querySelectorAll("#dias button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.d===d)));
+  const t=DIA.totais; $("subtitulo").textContent=`${new Date(d+"T12:00").toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long"})} · sol ${eur(t.pv_dia_kWh,1)} kWh · casa ${eur(t.carga_dia_kWh,1)} kWh · rede ${eur(t.rede_compra_dia_kWh,1)} kWh`;
+  aplicarHora(tq); }
+$("dias").innerHTML=DIAS.slice(0,3).map(d=>`<button data-d="${d}" aria-pressed="false">${new Date(d+"T12:00").toLocaleDateString("pt-PT",{day:"numeric",month:"short"}).replace(".","")}</button>`).join("");
+document.querySelectorAll("#dias button").forEach(b=>b.addEventListener("click",()=>{ mudarDia(b.dataset.d); ocupado(); }));
+$("hora").addEventListener("input",e=>{ aTocar=false; $("play").textContent="▶"; aplicarHora(+e.target.value); ocupado(); });
+$("play").addEventListener("click",()=>{ aTocar=!aTocar; $("play").textContent=aTocar?"❚❚":"▶"; ocupado(); });
+
+// ---------- câmara ----------
+const alvo={pos:new THREE.Vector3(),tgt:new THREE.Vector3(),t:1}, de={pos:new THREE.Vector3(),tgt:new THREE.Vector3()};
+function voar(pos,tgt,dur=1.4){ de.pos.copy(camera.position); de.tgt.copy(controls.target); alvo.pos.set(...pos); alvo.tgt.set(...tgt); alvo.t=0; alvo.dur=dur; }
+camera.position.set(-20,16.5,26); controls.target.set(4.5,-0.6,3.5);
+const pisos=["cave","rc","p1"];
+function cortar(ate){ // ate: null = casa inteira; "cave"/"rc"/"p1" = mostrar até esse piso, em corte
+  const lim=ate?pisos.indexOf(ate):2; pisos.forEach((p,i)=>C.grupos[p].visible=i<=lim); C.grupos.telhado.visible=!ate;
+  C.paredes.forEach(({mesh,z0,h})=>{ const hh=ate?Math.min(h,1.05):h; mesh.scale.y=hh/h; mesh.position.y=z0+hh/2; }); }
+
+// ---------- vistas ----------
+let vista="energia";
+function mudarVista(v){ vista=v; document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.vista===v)));
+  $("cartao").hidden=true; parar_passeio();
+  if(v==="energia"){ cortar(null); fluxosG.visible=true; ETQ.forEach(e=>e.vis=true); CHIPS.forEach(c=>c.vis=false); voar([-20,16.5,26],[4.5,-0.6,3.5]); }
+  if(v==="casa"){ cortar("p1"); fluxosG.visible=false; ETQ.forEach(e=>e.vis=false); CHIPS.forEach(c=>c.vis=!c.d.exterior||c.d.id==="jardim"); voar([-4,19,17],[8.2,1.5,3.5]); }
+  if(v==="tour"){ cortar(null); fluxosG.visible=true; ETQ.forEach(e=>e.vis=true); CHIPS.forEach(c=>c.vis=false); iniciar_passeio(); }
+  aplicarHora(tq); }
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{ mudarVista(b.dataset.vista); ocupado(); }));
+
+// ---------- cartões ----------
+let cartaoAtual=null;
+function mostrarCartao(nome,sub,linhas,dica){ $("cNome").textContent=nome; $("cSub").textContent=sub;
+  $("cLinhas").innerHTML=linhas.map(([a,b])=>`<span>${a}</span><b class="num">${b}</b>`).join("");
+  const dc=$("cDica"); dc.hidden=!dica; if(dica) dc.innerHTML=dica; $("cartao").hidden=false; }
+const dicaDe = re => { const d=dicas.find(x=>re.test(x.texto)); return d?`${d.texto} <b>−${eur(d.eur)} €/mês</b>`:null; };
+const mesLinhas = c => c?[["Este mês",`${eur(c.kwh)} kWh`],["Custo",`${eur(c.eur)} €`]]:[];
+const CARTOES=[
+  [/^Painel solar/, ()=>{ const p=ponto(tq); mostrarCartao("Painéis solares","9 painéis · 5,5 kWp · telhado virado a sul",[["Agora",kw(p.pv)],["Neste dia",`${eur(DIA.totais.pv_dia_kWh,1)} kWh`],["Este mês",`${eur(m.solar)} kWh`],["Poupou na fatura",`${eur(m.solar_eur)} €`]],"Nada é vendido à rede: tudo o que os painéis produzem é usado em casa ou guardado na bateria."); }],
+  [/^Bateria Felicity|^Inversor Deye/, ()=>{ const p=ponto(tq); mostrarCartao("Bateria","4 módulos Felicity · 20,5 kWh · inversor Deye 5 kW",[["Carga agora",`${Math.round(p.soc)} %`],["Agora",p.bat>40?`a dar ${kw(p.bat)}`:p.bat<-40?`a receber ${kw(-p.bat)}`:"parada"],["Neste dia, entregou",`${eur(DIA.totais.bat_descarga_dia_kWh,1)} kWh`],["Este mês, entregou",`${eur(m.bat_casa)} kWh`]],"Carrega de noite, a 0,11 €/kWh, e gasta de dia, quando a rede custa 0,19 €."); }],
+  [/^AQS Baxi/, ()=>{ const c=consumidor(/águas quentes/i), w=(DIA.aparelhos.baxi||[])[Math.min(23,Math.floor(tq/4))]||0; mostrarCartao("Águas quentes","Bomba de calor Baxi 300 L · medida por Shelly",[["Nesta hora",w>60?`${eur(w)} W`:"desligada"],...mesLinhas(c)],dicaDe(/Águas quentes/)); }],
+  [/^Máquina de (lavar|secar)/, o=>{ const lav=/lavar/.test(o.name), c=consumidor(lav?/lavar/i:/secar/i); mostrarCartao(lav?"Máquina de lavar":"Máquina de secar",(lav?"LG 12 kg":"AEG bomba de calor 9 kg")+" · medida por Shelly",[...mesLinhas(c),["Por ciclo",lav?"~0,10–0,21 €":"~0,22–0,38 €"]],dicaDe(/lavar e secar/)); }],
+  [/^Carregador Tesla|^Tesla Model Y$/, ()=>{ mostrarCartao(car?car.nome:"Carro","Carregador de parede · 19 A",[["Este mês",`${eur(car.kwh)} kWh`],["Custo",`${eur(car.eur)} €`],["Por 100 km",`${eur(car.eur100,2)} €`],["A gasolina",`${eur(car.gas100,2)} €`]],dicaDe(/Carro/)); }],
+  [/^Piscina$|Bomba de calor FITT/, ()=>{ const f=consumidor(/Filtração/i), b=consumidor(/Bomba de calor da piscina/i); mostrarCartao("Piscina","5,85 × 3 m · com cobertura · bomba de calor FITT",[["Filtração (estimada)",f?`${eur(f.eur)} €/mês`:"—"],["Aquecimento (estimado)",b?`${eur(b.eur)} €/mês`:"—"]],dicaDe(/Piscina/)); }],
+];
+function cartaoObjeto(o){ const c=CARTOES.find(([re])=>re.test(o.name)); if(!c) return false; cartaoAtual=()=>c[1](o); cartaoAtual(); return true; }
+function cartaoDivisao(d){ cartaoAtual=null; const a=d.x1-d.x0,b=d.y1-d.y0; mostrarCartao(d.nome,`${M.pisos.find(p=>p.id===d.piso).nome} · ${eur(a*b,1)} m²`,(d.dispositivos.length?d.dispositivos:["Sem equipamentos ligados"]).map(t=>[t,""]),null); }
+$("cFechar").addEventListener("click",()=>{ $("cartao").hidden=true; cartaoAtual=null; });
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2(); let baixo=null;
+canvas.addEventListener("pointerdown",e=>{ baixo=[e.clientX,e.clientY]; ocupado(); });
+canvas.addEventListener("pointerup",e=>{ if(!baixo||Math.hypot(e.clientX-baixo[0],e.clientY-baixo[1])>6) return;
+  const r=canvas.getBoundingClientRect(); ptr.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1); ray.setFromCamera(ptr,camera);
+  const visivel=o=>{ while(o){ if(!o.visible) return false; o=o.parent; } return true; };
+  const hit=ray.intersectObjects([...nomeados,...C.pickables].filter(visivel),false)[0]; if(!hit) return;
+  if(cartaoObjeto(hit.object)) return; const d=C.roomByMesh.get(hit.object); if(d) cartaoDivisao(d); });
+
+// ---------- passeio (modo TV) ----------
+const PARAGENS=[
+  {k:m.label, t:`Este mês: <em>${eur(m.fatura)} €</em> de fatura. O sol poupou <em>${eur(m.solar_eur)} €</em>.`, cam:[-20,16.5,26], tgt:[4.5,-0.6,3.5], corte:null},
+  {k:"Telhado · 9 painéis", t:`Produziram <em>${eur(m.solar)} kWh</em> este mês. Nada vai para a rede.`, cam:[2,15,20], tgt:[7.4,6.5,5], corte:null, obj:/^Painel solar/, hora:13},
+  {k:"Casa das máquinas · bateria 20 kWh", t:`Carrega de noite a <em>0,11 €</em> e gasta de dia, quando a rede custa <em>0,19 €</em>.`, cam:[-4.5,5.5,9.5], tgt:[2.2,-2.8,1.4], corte:"cave", obj:/^Bateria Felicity 1/, hora:23},
+  ...(car?[{k:`Garagem · ${car.nome}`, t:`<em>${eur(car.eur100,2)} €</em> por 100 km. A gasolina seriam <em>${eur(car.gas100,2)} €</em>.`, cam:[-12.5,4.2,8.8], tgt:[-3.4,-1.9,5.0], corte:null, obj:/^Tesla Model Y$/, hora:21}]:[]),
+  {k:"Águas quentes · bomba de calor", t:(()=>{ const c=consumidor(/águas quentes/i); return c?`<em>${eur(c.eur)} €</em> por mês. A resistência elétrica ainda entra quase todos os dias.`:"Medida por uma tomada Shelly."; })(), cam:[-2.5,5,9], tgt:[3.2,-2.7,1.2], corte:"cave", obj:/^AQS Baxi/, hora:()=>{ const a=(DIA&&DIA.aparelhos.baxi)||[]; const h=a.findIndex(w=>w>300); return h>=0?h+0.5:9; }},
+  {k:"Piscina", t:`O maior consumo que ainda falta medir: filtração e bomba de calor.`, cam:[11,8,18], tgt:[20.3,0.3,3.5], corte:null, obj:/^Piscina$/, hora:14},
+];
+let passeio=null;
+function iniciar_passeio(){ let i=0; aTocar=true; $("play").textContent="❚❚"; document.querySelector(".app").classList.add("passeio");
+  const passo=()=>{ const p=PARAGENS[i++%PARAGENS.length]; cortar(p.corte); voar(p.cam,p.tgt,2.2); if(p.hora!=null) aplicarHora((typeof p.hora==="function"?p.hora():p.hora)*4);
+    const h=$("historia"); h.hidden=true; setTimeout(()=>{ if(!passeio) return; $("hk").textContent=p.k; $("ht").innerHTML=p.t; h.hidden=false; },700);
+    $("cartao").hidden=true; if(p.obj){ const o=nomeados.find(x=>p.obj.test(x.name)); if(o) setTimeout(()=>{ if(passeio) cartaoObjeto(o); },1600); } };
+  passeio=setInterval(passo,9000); passo(); }
+function parar_passeio(){ if(passeio){ clearInterval(passeio); passeio=null; } $("historia").hidden=true; document.querySelector(".app").classList.remove("passeio"); }
+let inativo=null; const ESPERA=+(Q.get("espera")||45)*1000;
+function armar(){ clearTimeout(inativo); inativo=setTimeout(()=>{ if(vista!=="tour") mudarVista("tour"); },ESPERA); }
+function ocupado(){ if(vista==="tour" && passeio){ mudarVista("energia"); } armar(); }   // um toque de alguém interrompe o passeio
+
+// ---------- arranque ----------
+function redimensionar(){ const w=canvas.clientWidth,h=canvas.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/Math.max(h,1); camera.updateProjectionMatrix(); }
+addEventListener("resize",redimensionar); redimensionar();
+const diaIni = Q.get("dia") && DIAS.includes(Q.get("dia")) ? Q.get("dia") : DIAS[0];
+if(diaIni) await mudarDia(diaIni);
+const hIni = Q.has("hora") ? Math.max(0,Math.min(95,+Q.get("hora")*4)) : 10*4; aplicarHora(hIni);
+mudarVista(Q.get("vista")||"energia"); $("play").textContent=aTocar?"❚❚":"▶";
+if(!Q.has("parar")) armar();
+
+const reduzir=matchMedia("(prefers-reduced-motion: reduce)").matches; let ultimo=performance.now();
+(function loop(agora){ agora=agora||performance.now(); const dt=Math.min(.05,(agora-ultimo)/1000); ultimo=agora;
+  if(alvo.t<1){ alvo.t=reduzir?1:Math.min(1,alvo.t+dt/(alvo.dur||1.4)); const k=1-Math.pow(1-alvo.t,3); camera.position.lerpVectors(de.pos,alvo.pos,k); controls.target.lerpVectors(de.tgt,alvo.tgt,k); }
+  if(aTocar && DIA){ aplicarHora((tq+dt*(passeio?0.35:2))%96); }   // um dia em 48 s; no passeio, mais devagar para a hora não fugir
+  if(fluxosG.visible && !reduzir) FL.forEach(f=>{ if(f.w>40) f.parts.forEach(x=>{ x.t=(x.t+dt*(0.08+Math.min(.5,f.w/9000)))%1; x.s.position.copy(f.curva.getPoint(x.t)); }); });
+  controls.update(); renderer.render(scene,camera); posicionar(); requestAnimationFrame(loop); })();
+})();
+</script>
+</body>
+</html>

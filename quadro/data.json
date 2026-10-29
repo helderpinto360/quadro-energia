@@ -1,0 +1,213 @@
+{
+ "titulo": "Energia cá de casa · demo",
+ "atualizado": "2026-10-29T15:39:02.443Z",
+ "casa": {
+  "potencia": "10,35 kVA",
+  "tarifa": "Bi-horário diário",
+  "exporta": false
+ },
+ "mes": {
+  "label": "Outubro 2026",
+  "provisorio": true,
+  "ate": 29,
+  "dias": 29,
+  "consumo": 1733.91,
+  "compras": 1190.4268,
+  "solar": 578.6370000000001,
+  "solar_direto": 345.5031,
+  "solar_bat": 233.12519999999998,
+  "bat_casa": 318.10679999999996,
+  "rede_bat": 120.3268,
+  "rede_casa": 1070.1,
+  "fatura": 169.81803270835405,
+  "sem_solar": 267.81202526637804,
+  "solar_eur": 97.993992558024,
+  "autossuf": 0.32026793778223783,
+  "vazio_pct": 0.9060283687943262
+ },
+ "carro": {
+  "nome": "Carro elétrico",
+  "kwh": 459.36,
+  "km": 2100,
+  "eur": 54.8333622144,
+  "eur100": 2.6076480397186597,
+  "gas100": 13.125,
+  "gas_eur": 275.99118749999997
+ },
+ "consumidores": [
+  {
+   "nome": "Carro elétrico",
+   "kwh": 459.36,
+   "eur": 54.8333622144,
+   "medido": true,
+   "cor": "var(--carro)"
+  },
+  {
+   "nome": "Filtração da piscina",
+   "kwh": 417.6,
+   "eur": 49.646374222978714,
+   "medido": false,
+   "cor": "#4fb3e8"
+  },
+  {
+   "nome": "Resto da casa",
+   "kwh": 377.05800000000005,
+   "eur": 44.826538725497876,
+   "medido": false,
+   "nota": "por diferença",
+   "cor": "var(--tinta3)"
+  },
+  {
+   "nome": "Bomba de calor da piscina",
+   "kwh": 204.45,
+   "eur": 24.306037379999996,
+   "medido": false,
+   "cor": "#4fb3e8"
+  },
+  {
+   "nome": "Águas quentes (bomba de calor)",
+   "kwh": 133.632,
+   "eur": 20.8652035968,
+   "medido": true,
+   "cor": "#e8835a"
+  },
+  {
+   "nome": "Frigorífico americano",
+   "kwh": 37.149,
+   "eur": 5.896529226000001,
+   "medido": true,
+   "cor": "#7fd1e0"
+  },
+  {
+   "nome": "Máquina de secar",
+   "kwh": 29.406,
+   "eur": 5.299879989600001,
+   "medido": true,
+   "cor": "#c7a6ff"
+  },
+  {
+   "nome": "Máquina de lavar roupa",
+   "kwh": 15.921000000000001,
+   "eur": 3.0300480756000003,
+   "medido": true,
+   "cor": "#c7a6ff"
+  },
+  {
+   "nome": "Colunas Teka",
+   "kwh": 23.925,
+   "eur": 2.844323523191489,
+   "medido": false,
+   "cor": "#7fd1e0"
+  },
+  {
+   "nome": "Iluminação e estores",
+   "kwh": 19.575,
+   "eur": 2.3271737917021276,
+   "medido": true,
+   "cor": "#e9d27a"
+  },
+  {
+   "nome": "Ar condicionado da cozinha",
+   "kwh": 15.834,
+   "eur": 1.8824250226212762,
+   "medido": true,
+   "cor": "#8fd18f"
+  }
+ ],
+ "mudanca": {
+  "titulo": "A mudança que valeu a pena",
+  "frase": "Pus a bateria a carregar de noite, quando a eletricidade é barata, e a gastar de dia.",
+  "antes": {
+   "label": "9 ago–8 set",
+   "vazio": 37.859032258064516,
+   "fora": 14.004193548387097,
+   "eur_dia": 7.868729032258065
+  },
+  "depois": {
+   "label": "9 set–8 out",
+   "vazio": 44.457,
+   "fora": 4.611,
+   "eur_dia": 6.80601
+  },
+  "resultado": "A fatura por dia desceu 14%."
+ },
+ "tarifarios": {
+  "periodo": "9 set–8 out",
+  "testados": 80,
+  "opcoes": [
+   {
+    "nome": "EDP Digital −20%, bi-horário",
+    "total": 204.1455,
+    "atual": true
+   },
+   {
+    "nome": "Goldenergy ACP Mobilidade Elétrica em Casa, com campanha amigo e quota ACP",
+    "total": 211.0359,
+    "atual": false
+   },
+   {
+    "nome": "Goldenergy ACP Mobilidade Elétrica em Casa, sem campanha",
+    "total": 217.5609,
+    "atual": false
+   },
+   {
+    "nome": "MEO Energia FIXA + MEO M4e/M5e, bi-horário",
+    "total": 219.8316,
+    "atual": false
+   },
+   {
+    "nome": "Melhor tri-horário (EDP Desconto para Sempre −10%)",
+    "total": 228.03570000000002,
+    "atual": false
+   },
+   {
+    "nome": "Melhor simples (EDP Digital −20%)",
+    "total": 268.3863,
+    "atual": false
+   },
+   {
+    "nome": "Melhor indexado (Repsol Leve Sem Mais)",
+    "total": 413.946,
+    "atual": false
+   }
+  ]
+ },
+ "historico": [
+  {
+   "label": "Ago",
+   "fatura": 230.45448311217675,
+   "solar_eur": 139.106456680932,
+   "provisorio": false
+  },
+  {
+   "label": "Set",
+   "fatura": 252.90978041360677,
+   "solar_eur": 122.77648609887602,
+   "provisorio": false
+  },
+  {
+   "label": "Out",
+   "fatura": 169.81803270835405,
+   "solar_eur": 97.993992558024,
+   "provisorio": true
+  }
+ ],
+ "dicas": [
+  {
+   "texto": "Águas quentes: modo só bomba de calor, 50–55 °C, a aquecer entre as 4h e as 8h.",
+   "eur": 9
+  },
+  {
+   "texto": "Máquinas de lavar e secar com início diferido para depois das 22h.",
+   "eur": 3
+  },
+  {
+   "texto": "Piscina: filtração das 10h às 18h e das 23h às 5h, bomba de calor só de dia.",
+   "eur": 35
+  },
+  {
+   "texto": "Carro: agendar todas as cargas para depois das 22h.",
+   "eur": 3
+  }
+ ]
+}
